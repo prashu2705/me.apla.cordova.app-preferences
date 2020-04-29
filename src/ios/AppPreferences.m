@@ -15,7 +15,7 @@
 
 - (void)pluginInitialize
 {
-
+    [self registerSettingsBundle];
 }
 
 // http://useyourloaf.com/blog/sync-preference-data-with-icloud/
@@ -124,7 +124,6 @@
 
 - (void)fetch:(CDVInvokedUrlCommand*)command
 {
-
 	__block CDVPluginResult* result = nil;
 
 	NSDictionary* options = [self validateOptions:command];
@@ -155,6 +154,10 @@
 					returnVar = nil;
 				}
 			}
+            
+            if (target == nil) {
+                target = dataStore;
+            }
 
 			if (target != nil) {
 				settingsValue = [target objectForKey:settingsName];
@@ -415,5 +418,16 @@
 	}
 	return nil;
 
+}
+
+- (void)registerSettingsBundle
+{
+    NSString *pathStr = [[NSBundle mainBundle] bundlePath];
+    NSString *settingsBundlePath = [pathStr stringByAppendingPathComponent:@"Settings.bundle"];
+    NSString *finalPath = [settingsBundlePath stringByAppendingPathComponent:@"Root.plist"];
+
+    NSDictionary *appDefaults = [NSDictionary dictionaryWithContentsOfFile:finalPath];
+    
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 }
 @end
